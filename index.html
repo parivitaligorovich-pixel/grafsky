@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <script>
+    /* вмикаємо інтро-анімацію ще до першого кадру, щоб не було «спалаху» готового макета */
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("intro");
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЖК «Графський» — Черкаси</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Golos+Text:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================================
+       Сітка 4/8 px: усі розміри шрифтів, міжрядкові інтервали,
+       відступи й розміри блоків — цілі числа, кратні 4.
+       Найменший шрифт — 12 px.
+       ========================================================= */
+    :root {
+      /* тепла журнальна палітра (кольори сайту: #f5f8fa, #6b2306, #c29b2b — якщо знадобляться) */
+      --paper: #dcd8d1;        /* тепла «паперова» ліва половина */
+      --ink: #2b2420;          /* майже чорний з коричневим відтінком */
+      --ink-soft: #4a403a;
+      --brown: var(--ink);     /* акценти — тим самим темним кольором */
+      --gold: var(--ink);      /* кнопка — темна */
+      --gold-dark: #5a3a24;    /* кнопка при наведенні */
+      --white: #f6f3ee;
+
+      --serif: "Cormorant Garamond", "Times New Roman", serif;
+      --sans: "Golos Text", Arial, sans-serif;
+
+      /* шкала відступів */
+      --s-4: 4px;  --s-8: 8px;  --s-12: 12px; --s-16: 16px; --s-24: 24px;
+      --s-32: 32px; --s-40: 40px; --s-48: 48px; --s-64: 64px;
+
+      /* шрифти: розмір / міжрядковий інтервал — десктоп ≥ 1280 px */
+      --fs-ui: 12px;     --lh-ui: 16px;     /* меню, телефон, кнопка, підписи */
+      --fs-text: 16px;   --lh-text: 24px;   /* підзаголовок */
+      --fs-brand: 28px;  --lh-brand: 28px;  /* «ГРАФСЬКИЙ» у шапці */
+      --fs-fact: 40px;   --lh-fact: 40px;   /* цифри на фото */
+      --fs-title: 64px;  --lh-title: 56px;
+      --fs-area: 40px;   --lh-area: 40px;   /* «29,3 – 88,7 м²» */  /* головний заголовок (≥ 1440 px), щільний інтерліньяж */
+
+      /* розкладка */
+      --pad: var(--s-40);          /* відступ від країв */
+      --hdr-y: var(--s-32);        /* вертикальний відступ шапки */
+      --caption-bottom: var(--s-64);
+      --thumb-top: 104px;
+      --thumb-w: 288px;  --thumb-h: 360px;   /* 4 : 5 */
+      --facts-gap: var(--s-48);
+    }
+
+    /* ноутбуки 1280–1439 px: заголовок має влізти у два рядки */
+    @media (max-width: 1439px) {
+      :root { --fs-title: 56px; --lh-title: 52px; }
+    }
+    /* невеликі ноутбуки й планшети в ландшафті */
+    @media (max-width: 1279px) {
+      :root {
+        --fs-brand: 24px;  --lh-brand: 24px;
+        --fs-fact: 32px;   --lh-fact: 32px;
+        --fs-title: 44px;  --lh-title: 40px;
+        --fs-area: 32px;   --lh-area: 32px;
+        --pad: var(--s-32);
+        --hdr-y: var(--s-24);
+        --caption-bottom: var(--s-48);
+        --thumb-top: 88px;
+        --thumb-w: 224px;  --thumb-h: 280px;
+        --facts-gap: var(--s-32);
+      }
+    }
+    /* невисокі екрани — менше фото, щоб не наїжджало на заголовок */
+    @media (min-width: 768px) and (max-height: 820px) {
+      :root { --thumb-w: 224px; --thumb-h: 280px; }
+    }
+    @media (min-width: 768px) and (max-height: 760px) {
+      :root { --thumb-w: 192px; --thumb-h: 240px; }
+    }
+    @media (min-width: 768px) and (max-height: 640px) {
+      :root { --thumb-w: 160px; --thumb-h: 200px; }
+    }
+    /* планшет у портреті: блок площ — під маленьким фото, бо поруч із ним не вміщується */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      :root { --fs-title: 36px; --lh-title: 32px; --fs-area: 24px; --lh-area: 24px; }
+      .hero .hero__area { top: calc(var(--thumb-top) + var(--thumb-h) + var(--s-32)); }   /* .hero — щоб перебити базове правило нижче */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--paper); color: var(--ink); }
+    body { font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- HERO: дві рівні половини ----------
+       .hero-pin дає 100svh «запасу» скролу: hero прилипає,
+       а маленьке фото за цей час розгортається на весь екран. */
+    .hero-pin { position: relative; height: 200vh; height: 200svh; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-pin { height: auto; }
+      .hero { position: relative; }
+    }
+    .hero {
+      position: sticky; top: 0;
+      height: 100vh; height: 100svh;
+      min-height: 560px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+
+    /* ліва половина — фон із легкою зернистістю паперу */
+    .hero__left {
+      position: relative;
+      background: var(--paper);
+      isolation: isolate;
+    }
+    .hero__left::before {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      opacity: .35; mix-blend-mode: multiply; pointer-events: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .41  0 0 0 0 .37  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* маленьке фото — у правому верхньому куті лівої половини, одразу під шапкою.
+       Лежить прямо в .hero (а не в лівій половині), щоб при скролі вирости на весь екран. */
+    .hero__thumb {
+      position: absolute; z-index: 4; margin: 0;
+      right: calc(50% + var(--pad));
+      top: var(--thumb-top);
+      width: var(--thumb-w);
+      height: var(--thumb-h);
+      overflow: hidden;
+    }
+    .hero__thumb img { will-change: transform; }
+    /* затемнення до кольору блоку переваг — фото «перетікає» в наступну секцію */
+    .hero__shade {
+      position: absolute; inset: 0; background: #1e1a17; opacity: 0; pointer-events: none;
+    }
+    /* велика фраза, що проявляється на розгорнутому фото */
+    .hero__reveal {
+      position: absolute; inset: 0; z-index: 1;
+      display: grid; place-items: center; text-align: center;
+      font-family: var(--serif); font-weight: 600; color: var(--white);
+      font-size: 64px; line-height: 56px; letter-spacing: -0.02em;
+      opacity: 0; pointer-events: none;
+      background: radial-gradient(ellipse 48% 40% at 50% 50%, rgba(30,26,23,.6), rgba(30,26,23,0));
+      text-shadow: 0 2px 24px rgba(0,0,0,.35);
+    }
+    .hero__reveal small {
+      display: block; margin-top: var(--s-24);
+      font-family: var(--sans); font-weight: 500; font-size: var(--fs-ui); line-height: var(--lh-ui);
+      letter-spacing: 1px; text-transform: uppercase; color: rgba(246,243,238,.72);
+    }
+
+    /* велике фото справа на всю висоту */
+    .hero__right { position: relative; overflow: hidden; }
+
+    .hero img {
+      display: block; width: 100%; height: 100%; object-fit: cover;
+      /* приглушена «журнальна» тонка корекція, щоб фото звучали разом із папером */
+      filter: saturate(.62) contrast(.94) sepia(.12) brightness(.97);
+    }
+    .hero__right img { object-position: 50% 40%; }
+    .hero__thumb img { object-position: 45% 50%; }
+
+    /* ---------- верхній рядок ---------- */
+    .hdr {
+      position: absolute; inset: 0 0 auto 0; z-index: 3;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      padding: var(--hdr-y) var(--pad);
+      pointer-events: none;
+    }
+    .hdr > * { pointer-events: auto; }
+    .hdr__menu {
+      justify-self: start;
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase;
+      background: none; border: 0; color: var(--ink); cursor: pointer; font-family: inherit;
+    }
+    /* назва по центру сторінки — на межі двох половин, як у референсі */
+    .hdr__brand {
+      font-family: var(--serif); font-weight: 500;
+      font-size: var(--fs-brand); line-height: var(--lh-brand);
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--brown);
+      white-space: nowrap;
+    }
+    /* телефон — помітна «плашка» на фото: темна підкладка, 16 px, іконка */
+    .hdr__phone {
+      justify-self: end;
+      display: inline-flex; align-items: center; gap: var(--s-8);
+      padding: var(--s-8) var(--s-16);                 /* 8 + 24 + 8 = 40 px заввишки */
+      background: rgba(30,26,23,.72);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      font-size: var(--fs-text); line-height: var(--lh-text); font-weight: 500;
+      color: var(--white);
+      transition: background .3s;
+    }
+    .hdr__phone svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .hdr__phone:hover { background: var(--ink); }
+
+    /* ---------- заголовок і підпис зліва знизу ---------- */
+    .hero__caption {
+      position: absolute;
+      left: var(--pad);
+      right: var(--pad);
+      bottom: var(--caption-bottom);
+    }
+    .hero__title {
+      font-family: var(--serif); font-weight: 600;
+      font-size: var(--fs-title); line-height: var(--lh-title);
+      letter-spacing: -0.02em;   /* −2 %: єдине значення в em — трекінг масштабується разом зі шрифтом */
+      margin-bottom: var(--s-24);
+    }
+    /* кожен рядок заголовка — у «вікні», з якого текст виїжджає знизу */
+    .t-line { display: block; overflow: hidden; padding: 8px 0; margin: -8px 0; }
+    .t-line > span { display: block; }
+    .t-line + .t-line { margin-top: -16px; }   /* сусідні від'ємні поля схлопуються — компенсуємо обидва відступи */
+    /* локація над заголовком */
+    .hero__loc {
+      display: inline-flex; align-items: center; gap: var(--s-8);
+      margin-bottom: var(--s-16);
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft);
+      transition: color .3s;
+    }
+    .hero__loc svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; flex: none; }
+    .hero__loc:hover { color: var(--ink); }
+
+    /* площі квартир — окремим акцентом збоку, у вільному верхньому куті лівої половини */
+    .hero__area {
+      position: absolute; left: var(--pad); top: var(--thumb-top);
+      display: flex; flex-direction: column; gap: var(--s-8);
+      padding-top: var(--s-16);
+      border-top: 1px solid rgba(43,36,32,.24);
+    }
+    .hero__area-label {
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft);
+    }
+    .hero__area-value {
+      font-family: var(--serif); font-weight: 600;
+      font-size: var(--fs-area); line-height: var(--lh-area); letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .hero__area-note { font-size: var(--fs-ui); line-height: var(--lh-ui); color: var(--ink-soft); }
+    /* як на сайті: частина заголовка — фірмовим коричневим */
+    .hero__title em { font-style: normal; color: var(--brown); }
+    .hero__text {
+      max-width: 520px;
+      font-size: var(--fs-text); line-height: var(--lh-text);
+      color: var(--ink-soft);
+    }
+
+    /* ---------- кнопка заклику + другий, «легкий» заклик ---------- */
+    .hero__actions {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: var(--s-16) var(--s-32);
+      margin-top: var(--s-32);
+    }
+    .hero__cta {
+      display: inline-flex; align-items: center; gap: var(--s-16);
+      padding: var(--s-16) var(--s-24);            /* 16 + 16 + 16 = 48 px заввишки */
+      background: var(--gold); color: var(--white);
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: background .3s, gap .3s;
+    }
+    .hero__cta svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .hero__cta:hover { background: var(--gold-dark); gap: var(--s-24); }
+    .hero__cta:focus-visible { outline: 1px solid var(--brown); outline-offset: 4px; }
+
+    .hero__link {
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding-bottom: var(--s-4);
+      color: var(--brown);
+      border-bottom: 1px solid rgba(43,36,32,.35);
+      transition: border-color .3s;
+    }
+    .hero__link:hover { border-color: var(--brown); }
+
+    /* ---------- цифри на великому фото — як підпис до знімка ---------- */
+    .hero__right::after { /* м'яке затемнення знизу під цифри */
+      content: ""; position: absolute; inset: auto 0 0 0; height: 45%;
+      background: linear-gradient(0deg, rgba(28,22,18,.78) 0%, rgba(28,22,18,.35) 45%, rgba(28,22,18,0) 100%);
+      pointer-events: none;
+    }
+    .hero__facts {
+      position: absolute; z-index: 2;
+      left: var(--pad); right: var(--pad); bottom: var(--caption-bottom);
+      display: grid; grid-template-columns: repeat(3, auto); justify-content: start;
+      gap: var(--facts-gap);
+      list-style: none; color: var(--white);
+    }
+    .hero__facts li {
+      display: flex; flex-direction: column; gap: var(--s-8);
+      padding-left: var(--s-16);
+      border-left: 1px solid rgba(246,243,238,.4);
+    }
+    .hero__facts b {
+      font-family: var(--serif); font-weight: 400;
+      font-size: var(--fs-fact); line-height: var(--lh-fact);
+    }
+    .hero__facts span {
+      font-size: var(--fs-ui); line-height: var(--lh-ui);
+      color: rgba(246,243,238,.9);
+    }
+
+    /* ---------- ІНТРО: поява при завантаженні ----------
+       html.intro      — стартовий стан (усе сховано)
+       html.intro.go   — запуск: переходи до звичайного стану з затримками
+       після завершення клас .intro знімається, щоб скрол-анімація працювала без переходів */
+    html.intro .hero__right            { clip-path: inset(100% 0 0 0); }
+    html.intro .hero__right > img      { transform: scale(1.3); }
+    html.intro .hero__thumb            { clip-path: inset(0 0 100% 0); }
+    html.intro .hero__thumb img        { transform: scale(1.5); }
+    html.intro .t-line > span          { transform: translateY(112%); }
+    html.intro .hero__loc,
+    html.intro .hero__area,
+    html.intro .hero__text,
+    html.intro .hero__actions,
+    html.intro .hdr > *,
+    html.intro .hero__facts li         { opacity: 0; transform: translateY(16px); }
+    html.intro .hero__facts li         { border-left-color: transparent; }
+
+    html.intro.go .hero__right,
+    html.intro.go .hero__right > img,
+    html.intro.go .hero__thumb,
+    html.intro.go .hero__thumb img,
+    html.intro.go .t-line > span,
+    html.intro.go .hero__loc,
+    html.intro.go .hero__area,
+    html.intro.go .hero__text,
+    html.intro.go .hero__actions,
+    html.intro.go .hdr > *,
+    html.intro.go .hero__facts li {
+      clip-path: inset(0); transform: none; opacity: 1;
+    }
+    html.intro.go .hero__facts li { border-left-color: rgba(246,243,238,.4); }
+
+    /* 1. велике фото «відкривається» знизу вгору, всередині — повільний зум */
+    html.intro.go .hero__right      { transition: clip-path 1.4s cubic-bezier(.77,0,.18,1); }
+    html.intro.go .hero__right > img { transition: transform 2.4s cubic-bezier(.16,1,.3,1); }
+    /* 2. маленьке фото — шторка згори вниз */
+    html.intro.go .hero__thumb      { transition: clip-path 1.2s .5s cubic-bezier(.77,0,.18,1); }
+    html.intro.go .hero__thumb img  { transition: transform 2s .5s cubic-bezier(.16,1,.3,1); }
+    /* 3. рядки заголовка виїжджають по черзі */
+    html.intro.go .t-line > span    { transition: transform 1.2s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .t-line:nth-child(1) > span { transition-delay: .8s; }
+    html.intro.go .t-line:nth-child(2) > span { transition-delay: .92s; }
+    /* 4. решта — м'яко піднімається */
+    html.intro.go .hdr > *          { transition: opacity .8s 1s, transform .8s 1s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .hero__loc        { transition: opacity .8s .7s, transform .8s .7s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .hero__area       { transition: opacity .8s 1.2s, transform .8s 1.2s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .hero__text       { transition: opacity .8s 1.15s, transform .8s 1.15s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .hero__actions    { transition: opacity .8s 1.25s, transform .8s 1.25s cubic-bezier(.16,1,.3,1); }
+    html.intro.go .hero__facts li   { transition: opacity .8s, transform .8s cubic-bezier(.16,1,.3,1), border-color .8s; }
+    html.intro.go .hero__facts li:nth-child(1) { transition-delay: 1.3s; }
+    html.intro.go .hero__facts li:nth-child(2) { transition-delay: 1.4s; }
+    html.intro.go .hero__facts li:nth-child(3) { transition-delay: 1.5s; }
+
+    /* ---------- мобільна версія: фото зверху, «папір» знизу ---------- */
+    @media (max-width: 767px) {
+      :root {
+        --fs-brand: 20px;  --lh-brand: 20px;
+        --fs-fact: 24px;   --lh-fact: 24px;
+        --fs-title: 36px;  --lh-title: 32px;
+        --pad: var(--s-16);
+        --hdr-y: var(--s-16);
+        --thumb-w: 144px;  --thumb-h: 180px;
+        --fs-area: 24px;   --lh-area: 24px;
+      }
+      .hero-pin { height: auto; }
+      .hero {
+        position: relative;
+        height: auto; min-height: 0;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+      }
+      .hero__right { order: -1; height: 400px; }
+      .hero__left { display: flex; align-items: flex-end; padding: 96px 0 var(--s-24); }
+      .hero__thumb { top: 316px; right: var(--pad); }   /* 400 − 84: заходить на велике фото */
+      .hero__area { top: var(--s-16); padding-top: var(--s-8); gap: var(--s-4); }   /* у вільному місці ліворуч від маленького фото */
+      .hdr { grid-template-columns: auto 1fr; }
+      .hdr__brand { grid-column: 1 / -1; grid-row: 1; justify-self: center; color: var(--white); margin-bottom: var(--s-16); text-shadow: 0 1px 12px rgba(0,0,0,.3); }
+      .hdr__menu { color: var(--white); }
+      .hero__caption { position: static; padding: 0 var(--pad); }
+      .hero__title { margin-bottom: var(--s-16); }
+      .hero__loc { margin-bottom: var(--s-12); }
+      .hero__text { max-width: none; }
+      .hero__actions { gap: var(--s-12) var(--s-24); margin-top: var(--s-24); }
+      /* цифри стовпчиком у лівому нижньому куті фото — праворуч стоїть маленьке фото */
+      .hero__facts { grid-template-columns: 1fr; gap: var(--s-8); right: auto; bottom: var(--s-24); }
+      .hero__facts li { flex-direction: row; align-items: baseline; gap: var(--s-8); padding-left: var(--s-8); }
+    }
+
+    /* =========================================================
+       ПЕРЕВАГИ — темний блок, що «прилипає» до екрана.
+       4 кроки скролу = 4 переваги: міняються заголовок, текст і фото.
+       ========================================================= */
+    .adv {
+      --night: #1e1a17;
+      --mute: rgba(246,243,238,.64);
+      --hair: rgba(246,243,238,.16);
+      /* розміри карток (усе кратне 4) */
+      --cw: 360px; --ch: 480px;   /* центральне фото */
+      --sw: 200px; --sh: 400px;   /* бічні фото */
+      --side: 260px;              /* зсув бічних від центру */
+      --fs-adv: 64px; --lh-adv: 56px;
+
+      position: relative;
+      height: 400vh; height: 400svh;   /* 4 екрани скролу */
+      background: var(--night);
+      color: var(--white);
+    }
+    @media (max-width: 1279px) {
+      .adv { --cw: 288px; --ch: 384px; --sw: 160px; --sh: 320px; --side: 208px; --fs-adv: 56px; --lh-adv: 52px; }
+    }
+    @media (min-width: 768px) and (max-height: 820px) {
+      .adv { --cw: 288px; --ch: 384px; --sw: 160px; --sh: 320px; --side: 208px; --fs-adv: 56px; --lh-adv: 52px; }
+    }
+    @media (min-width: 768px) and (max-height: 680px) {
+      .adv { --cw: 224px; --ch: 296px; --sw: 128px; --sh: 248px; --side: 164px; --fs-adv: 44px; --lh-adv: 40px; }
+    }
+
+    .adv__stage {
+      position: sticky; top: 0;
+      height: 100vh; height: 100svh;
+      overflow: hidden;
+    }
+
+    /* --- верхній лівий кут: мітка розділу + лічильник --- */
+    .adv__head {
+      position: absolute; top: var(--pad); left: var(--pad); z-index: 5;
+      display: flex; flex-direction: column; gap: var(--s-8);
+    }
+    .adv__label {
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--mute);
+    }
+    .adv__count {
+      font-family: var(--serif); font-size: 40px; line-height: 40px; font-weight: 400;
+      display: flex; align-items: baseline; gap: var(--s-8);
+    }
+    .adv__count small { font-family: var(--sans); font-size: var(--fs-ui); line-height: var(--lh-ui); color: var(--mute); }
+    .adv__now { display: inline-grid; }
+    .adv__now span { grid-area: 1 / 1; transition: opacity .5s, transform .5s; }
+    .adv__now span:not(.is-on) { opacity: 0; transform: translateY(12px); }
+
+    /* --- верхній правий кут: навігація по перевагах з прогресом --- */
+    .adv__nav {
+      position: absolute; top: var(--pad); right: var(--pad); z-index: 5;
+      list-style: none; width: 240px;
+      display: flex; flex-direction: column; gap: var(--s-12);
+    }
+    .adv__nav button {
+      width: 100%; display: grid; grid-template-columns: 24px 1fr; gap: var(--s-8);
+      padding-bottom: var(--s-8); position: relative;
+      background: none; border: 0; cursor: pointer; text-align: left;
+      font-family: var(--sans); font-size: var(--fs-ui); line-height: var(--lh-ui);
+      color: var(--mute); transition: color .4s;
+    }
+    .adv__nav button::before, .adv__nav button::after { /* лінія прогресу під пунктом */
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--hair);
+    }
+    .adv__nav button::after { background: var(--white); transform: scaleX(var(--fill, 0)); transform-origin: left; }
+    .adv__nav button.is-on { color: var(--white); }
+    .adv__nav button:hover { color: var(--white); }
+
+    /* --- 3D-сітка на весь екран --- */
+    .adv__grid {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; display: block;
+      pointer-events: none;
+    }
+
+    /* --- стос фото по центру --- */
+    .adv__card {
+      position: absolute; left: 50%; top: 50%; margin: 0;
+      width: var(--sw); height: var(--sh);
+      overflow: hidden;
+      transform: translate(-50%, -50%) translateX(var(--x, 0));
+      opacity: 0; z-index: 1;
+      transition: transform 1s cubic-bezier(.7,0,.2,1), width 1s cubic-bezier(.7,0,.2,1), height 1s cubic-bezier(.7,0,.2,1), opacity .8s, filter 1s;
+    }
+    .adv__card img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(.7) contrast(.96); }
+    .adv__card[data-pos="center"] { --x: 0px; width: var(--cw); height: var(--ch); opacity: 1; z-index: 3; }
+    .adv__card[data-pos="prev"]   { --x: calc(var(--side) * -1); opacity: 1; z-index: 2; filter: brightness(.55); }
+    .adv__card[data-pos="next"]   { --x: var(--side); opacity: 1; z-index: 2; filter: brightness(.55); }
+    .adv__card[data-pos="before"] { --x: calc(var(--side) * -1.6); }
+    .adv__card[data-pos="after"]  { --x: calc(var(--side) * 1.6); }
+
+    /* мітка на центральному фото */
+    .adv__tag {
+      position: absolute; left: 50%; bottom: var(--s-16); transform: translate(-50%, 8px);
+      display: inline-flex; align-items: center; gap: var(--s-8);
+      padding: var(--s-8) var(--s-12);
+      background: rgba(30,26,23,.88); color: var(--white);
+      font-size: var(--fs-ui); line-height: var(--lh-ui); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+      opacity: 0; transition: opacity .5s .4s, transform .5s .4s;
+    }
+    .adv__tag::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+    .adv__card[data-pos="center"] .adv__tag { opacity: 1; transform: translate(-50%, 0); }
+
+    /* --- низ: заголовок зліва, текст і кнопка справа --- */
+    .adv__foot {
+      position: absolute; left: var(--pad); right: var(--pad); bottom: var(--pad); z-index: 5;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-32);
+      pointer-events: none;
+    }
+    .adv__stack { display: grid; }
+    .adv__stack > * { grid-area: 1 / 1; transition: opacity .6s, transform .6s cubic-bezier(.2,.7,.2,1); }
+    .adv__stack > :not(.is-on) { opacity: 0; transform: translateY(24px); pointer-events: none; visibility: hidden; transition: opacity .4s, transform .4s, visibility 0s .4s; }
+    .adv__stack > .is-on { pointer-events: auto; }
+
+    .adv__title {
+      font-family: var(--serif); font-weight: 600;
+      font-size: var(--fs-adv); line-height: var(--lh-adv); letter-spacing: -0.02em;
+    }
+    .adv__body { width: 360px; display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-24); }
+    .adv__body p { font-size: var(--fs-text); line-height: var(--lh-text); color: var(--mute); text-indent: 64px; }
+    .adv__btn {
+      display: inline-flex; align-items: center; gap: var(--s-12);
+      font-size: var(--fs-ui); line-height: var(--lh-ui); font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--white);
+    }
+    .adv__btn i {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      border: 1px solid var(--hair); transition: background .3s, border-color .3s;
+    }
+    .adv__btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .adv__btn span { padding-bottom: var(--s-4); border-bottom: 1px solid rgba(246,243,238,.4); }
+    .adv__btn:hover i { background: var(--white); border-color: var(--white); color: var(--night); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .adv__card, .adv__stack > *, .adv__now span, .adv__tag { transition: none !important; }
+    }
+
+    /* --- мобільна версія --- */
+    @media (max-width: 767px) {
+      .adv { --cw: 208px; --ch: 272px; --sw: 104px; --sh: 208px; --side: 136px; --fs-adv: 36px; --lh-adv: 32px; }
+      .adv__nav { width: auto; flex-direction: row; gap: var(--s-8); top: 72px; left: var(--pad); right: auto; }
+      .adv__nav li { width: 24px; }
+      .adv__nav button { grid-template-columns: 1fr; font-size: 0; padding-bottom: 0; height: 12px; }
+      .adv__nav button b { display: none; }
+      .adv__head { flex-direction: row; align-items: baseline; gap: var(--s-16); }
+      .adv__count { font-size: 32px; line-height: 32px; }
+      .adv__card { top: 40%; }
+      .adv__foot { flex-direction: column; align-items: stretch; gap: var(--s-16); }
+      .adv__body { width: auto; gap: var(--s-16); }
+      .adv__body p { text-indent: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-pin">
+  <main class="hero">
+    <header class="hdr">
+      <button class="hdr__menu" type="button">Меню</button>
+      <a class="hdr__brand" href="#">Графський</a>
+      <a class="hdr__phone" href="tel:+380677878855">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+        <span>(067) 787-88-55</span>
+      </a>
+    </header>
+
+    <figure class="hero__thumb">
+      <img src="img/facade-evening.jpg" alt="Фасад зданої секції ЖК «Графський» увечері">
+      <div class="hero__shade"></div>
+      <p class="hero__reveal" aria-hidden="true">
+        <span>Квартал, у який<br>хочеться повертатися<small>6 з 11 секцій уже здано</small></span>
+      </p>
+    </figure>
+
+    <section class="hero__left">
+      <div class="hero__area">
+        <span class="hero__area-label">Квартири</span>
+        <span class="hero__area-value">29,3 – 88,7 м²</span>
+        <span class="hero__area-note">вільне планування</span>
+      </div>
+
+      <div class="hero__caption">
+        <a class="hero__loc" href="https://www.google.com/maps/search/?api=1&amp;query=%D0%A7%D0%B5%D1%80%D0%BA%D0%B0%D1%81%D0%B8%2C+%D0%B2%D1%83%D0%BB.+%D0%91%D0%B0%D0%B9%D0%B4%D0%B8+%D0%92%D0%B8%D1%88%D0%BD%D0%B5%D0%B2%D0%B5%D1%86%D1%8C%D0%BA%D0%BE%D0%B3%D0%BE%2C+68" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          <span>вул. Байди Вишневецького, 68 · Черкаси</span>
+        </a>
+        <h1 class="hero__title"><span class="t-line"><span>Англійський квартал</span></span><span class="t-line"><span><em>у центрі Черкас</em></span></span></h1>
+        <p class="hero__text">Перший у Черкасах комплекс в англійському стилі — з тихим двором і власним паркінгом.</p>
+        <div class="hero__actions">
+          <a class="hero__cta" href="#plans">
+            <span>Підібрати квартиру</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <!-- номер Viber узятий із сайту (067) 787-88-55 — уточнити в забудовника -->
+          <a class="hero__link" href="viber://chat?number=%2B380677878855">Планування у Viber</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero__right">
+      <img src="img/hero-facade.jpg" alt="Секції ЖК «Графський» на тлі неба">
+
+      <ul class="hero__facts" aria-label="Комплекс у цифрах">
+        <li><b>6</b><span>секцій уже здано</span></li>
+        <li><b>1100</b><span>квартир у комплексі</span></li>
+        <li><b>4,5 га</b><span>територія комплексу</span></li>
+      </ul>
+    </section>
+  </main>
+  </div>
+
+  <!-- ===================== ПЕРЕВАГИ ===================== -->
+  <section class="adv" id="advantages" aria-label="Переваги ЖК «Графський»">
+    <div class="adv__stage">
+
+      <div class="adv__head">
+        <span class="adv__label">Чому «Графський»</span>
+        <div class="adv__count" aria-hidden="true">
+          <span class="adv__now"><span class="is-on">01</span><span>02</span><span>03</span><span>04</span></span>
+          <small>/ 04</small>
+        </div>
+      </div>
+
+      <ul class="adv__nav">
+        <li><button type="button" class="is-on"><span>01</span><b>Англійський стиль</b></button></li>
+        <li><button type="button"><span>02</span><b>Тепло й економія</b></button></li>
+        <li><button type="button"><span>03</span><b>Двір і паркінг</b></button></li>
+        <li><button type="button"><span>04</span><b>Усе поруч</b></button></li>
+      </ul>
+
+      <!-- 3D-сітка на весь екран (canvas), реагує на курсор, як вода -->
+      <canvas class="adv__grid" aria-hidden="true"></canvas>
+
+      <figure class="adv__card" data-pos="center">
+        <img src="img/adv-architecture.jpg" alt="Візуалізація секцій ЖК «Графський» увечері" loading="lazy">
+        <figcaption class="adv__tag">Архітектура</figcaption>
+      </figure>
+      <figure class="adv__card" data-pos="next">
+        <img src="img/adv-warm.jpg" alt="Фасад зданої секції з панорамним склінням" loading="lazy">
+        <figcaption class="adv__tag">Енергоефективність</figcaption>
+      </figure>
+      <figure class="adv__card" data-pos="after">
+        <img src="img/adv-yard.jpg" alt="Двір комплексу з дитячим майданчиком" loading="lazy">
+        <figcaption class="adv__tag">Двір</figcaption>
+      </figure>
+      <figure class="adv__card" data-pos="after">
+        <img src="img/adv-street.jpg" alt="Комерційні приміщення на першому поверсі" loading="lazy">
+        <figcaption class="adv__tag">Інфраструктура</figcaption>
+      </figure>
+
+      <div class="adv__foot">
+        <div class="adv__stack">
+          <h2 class="adv__title is-on">Перший<br>англійський квартал<br>у Черкасах</h2>
+          <h2 class="adv__title">Тепло взимку,<br>менше платежів<br>за опалення</h2>
+          <h2 class="adv__title">Двір для дітей,<br>паркінг —<br>для авто</h2>
+          <h2 class="adv__title">Усе щоденне —<br>на першому<br>поверсі</h2>
+        </div>
+
+        <div class="adv__stack">
+          <div class="adv__body is-on">
+            <p>Класичні пропорції, стримані фасади й ліхтарі вздовж доріжок. «Графський» — перший у Черкасах комплекс в англійському стилі.</p>
+            <a class="adv__btn" href="#gallery"><i><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></i><span>Дивитися галерею</span></a>
+          </div>
+          <div class="adv__body">
+            <p>Стіни утеплені базальтовою мінеральною ватою, а індивідуальне теплопостачання дає змогу платити лише за те тепло, яке ви використовуєте.</p>
+            <a class="adv__btn" href="#about"><i><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></i><span>Про технології</span></a>
+          </div>
+          <div class="adv__body">
+            <p>4,5 га території з дитячими майданчиками й озелененням. Машини — на паркінгу на 200+ місць, а не під вікнами й на тротуарах.</p>
+            <a class="adv__btn" href="#plan"><i><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></i><span>Генплан комплексу</span></a>
+          </div>
+          <div class="adv__body">
+            <p>На першому та цокольному поверхах — комерційні приміщення: кав’ярні, магазини, сервіси. І все це — в самому центрі міста.</p>
+            <a class="adv__btn" href="#plans"><i><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></i><span>Підібрати квартиру</span></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    /* ================= HERO: інтро + скрол-анімація ================= */
+    (() => {
+      const root  = document.documentElement;
+      const pin   = document.querySelector('.hero-pin');
+      const hero  = document.querySelector('.hero');
+      const thumb = document.querySelector('.hero__thumb');
+      const tImg  = thumb.querySelector('img');
+      const shade = thumb.querySelector('.hero__shade');
+      const reveal= thumb.querySelector('.hero__reveal');
+      const rImg  = document.querySelector('.hero__right > img');
+      const cap   = document.querySelector('.hero__caption');
+      const area  = document.querySelector('.hero__area');
+      const hdr   = document.querySelector('.hdr');
+      const facts = document.querySelector('.hero__facts');
+      const nums  = [...document.querySelectorAll('.hero__facts b')];
+
+      const clamp = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
+      const lerp  = (a, b, t) => a + (b - a) * t;
+      const ease  = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // easeInOutCubic
+      const range = (p, a, b) => clamp((p - a) / (b - a));                          // локальний прогрес у відрізку
+
+      /* ---------- 1. ІНТРО ---------- */
+      function countUp() {
+        nums.forEach((el, i) => {
+          const raw = el.textContent.trim();
+          const m = raw.match(/^([\d,]+)(.*)$/);
+          if (!m) return;
+          const decimals = (m[1].split(',')[1] || '').length;
+          const target = parseFloat(m[1].replace(',', '.'));
+          const t0 = performance.now() + 1300 + i * 100, dur = 1400;
+          const tick = now => {
+            const k = clamp((now - t0) / dur);
+            const v = (target * (1 - Math.pow(1 - k, 4))).toFixed(decimals).replace('.', ',');
+            el.textContent = v + m[2];
+            if (k < 1) requestAnimationFrame(tick);
+          };
+          el.textContent = (0).toFixed(decimals).replace('.', ',') + m[2];
+          requestAnimationFrame(tick);
+        });
+      }
+      function play() {
+        if (!root.classList.contains('intro')) return;
+        root.classList.add('go');
+        countUp();
+        // після завершення знімаємо інтро-класи: далі елементами керує скрол
+        setTimeout(() => { root.classList.remove('intro', 'go'); update(); }, 2600);
+      }
+      if (root.classList.contains('intro')) {
+        // стартуємо, коли головні фото завантажені (але не довше 1.5 с очікування)
+        const imgs = [rImg, tImg].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = r; }));
+        Promise.race([Promise.all(imgs), new Promise(r => setTimeout(r, 1500))])
+          .then(() => requestAnimationFrame(() => requestAnimationFrame(play)));
+      }
+
+      /* ---------- 2. СКРОЛ: маленьке фото розгортається на весь екран ---------- */
+      let start = null, ticking = false;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const styled = [thumb, tImg, shade, reveal, rImg, cap, area, hdr, facts];
+      const clear = () => styled.forEach(el => el.removeAttribute('style'));
+
+      function measure() {
+        clear();
+        const h = hero.getBoundingClientRect(), t = thumb.getBoundingClientRect();
+        start = { x: t.left - h.left, y: t.top - h.top, w: t.width, h: t.height };
+        update();
+      }
+
+      function update() {
+        ticking = false;
+        if (innerWidth < 768 || !start || reduce.matches) { clear(); return; }
+        const dist = pin.offsetHeight - innerHeight;
+        const p = clamp(-pin.getBoundingClientRect().top / dist);
+        if (p === 0) { clear(); return; }
+        if (root.classList.contains('intro')) return;   // поки грає інтро — не втручаємось
+
+        const W = hero.clientWidth, H = hero.clientHeight;
+        const e = ease(range(p, 0, .8));                 // розгортання займає 80 % шляху
+
+        // фото росте з кута до повного екрана; рамка — без спотворень (object-fit: cover)
+        Object.assign(thumb.style, {
+          right: 'auto',
+          left:   lerp(start.x, 0, e) + 'px',
+          top:    lerp(start.y, 0, e) + 'px',
+          width:  lerp(start.w, W, e) + 'px',
+          height: lerp(start.h, H, e) + 'px'
+        });
+        tImg.style.transform  = `scale(${lerp(1, 1.08, e)})`;
+        tImg.style.filter     = `saturate(${lerp(.62, .5, e)}) brightness(${lerp(.97, .55, e)})`;
+
+        // фраза проявляється на розгорнутому фото, потім усе тоне в кольорі блоку переваг
+        const rIn = range(p, .45, .7), rOut = range(p, .82, .97);
+        reveal.style.opacity   = (rIn * (1 - rOut)).toFixed(3);
+        reveal.style.transform = `translateY(${lerp(32, 0, ease(rIn)) - 24 * rOut}px)`;
+        shade.style.opacity    = ease(range(p, .8, 1)).toFixed(3);
+
+        // решта hero відходить: велике фото наближається, текст іде вгору
+        rImg.style.transform  = `scale(${lerp(1, 1.18, e)})`;
+        cap.style.transform   = `translateY(${-96 * e}px)`;
+        cap.style.opacity     = (1 - range(p, 0, .35)).toFixed(3);
+        area.style.transform  = `translateY(${-64 * e}px)`;
+        area.style.opacity    = (1 - range(p, 0, .25)).toFixed(3);
+        facts.style.opacity   = (1 - range(p, 0, .3)).toFixed(3);
+        hdr.style.opacity     = (1 - range(p, 0, .25)).toFixed(3);
+      }
+
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      addEventListener('resize', measure);
+      document.fonts.ready.then(measure);
+      measure();
+    })();
+  </script>
+
+  <script>
+    /* Перемикання переваг за скролом: секція 400vh, «сцена» прилипає,
+       прогрес скролу ділимо на 4 кроки. */
+    (() => {
+      const sec = document.querySelector('.adv');
+      if (!sec) return;
+      const cards  = [...sec.querySelectorAll('.adv__card')];
+      const stacks = [...sec.querySelectorAll('.adv__stack')];
+      const nums   = [...sec.querySelectorAll('.adv__now span')];
+      const navBtn = [...sec.querySelectorAll('.adv__nav button')];
+      const N = cards.length;
+      let current = -1, ticking = false;
+
+      const posFor = d => d === 0 ? 'center' : d === -1 ? 'prev' : d === 1 ? 'next' : d < 0 ? 'before' : 'after';
+
+      function setActive(i) {
+        if (i === current) return;
+        current = i;
+        cards.forEach((c, j) => c.dataset.pos = posFor(j - i));
+        stacks.forEach(s => [...s.children].forEach((el, j) => el.classList.toggle('is-on', j === i)));
+        nums.forEach((n, j) => n.classList.toggle('is-on', j === i));
+        navBtn.forEach((b, j) => b.classList.toggle('is-on', j === i));
+      }
+
+      function update() {
+        ticking = false;
+        const total = sec.offsetHeight - innerHeight;
+        const p = Math.min(Math.max(-sec.getBoundingClientRect().top / total, 0), 0.9999);
+        const step = p * N;
+        setActive(Math.floor(step));
+        // заповнення ліній прогресу в навігації
+        navBtn.forEach((b, j) => b.style.setProperty('--fill', Math.min(Math.max(step - j, 0), 1).toFixed(3)));
+      }
+
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      addEventListener('resize', update);
+      update();
+
+      // клік по пункту навігації — прокрутка до відповідного кроку
+      navBtn.forEach((b, j) => b.addEventListener('click', () => {
+        const total = sec.offsetHeight - innerHeight;
+        scrollTo({ top: sec.offsetTop + total * (j + 0.5) / N, behavior: 'smooth' });
+      }));
+    })();
+  </script>
+  <script>
+    /* ================= ПЕРЕВАГИ: 3D-сітка, що прогинається, як вода =================
+       • сітка вузлів із кроком 16 px (лінії малюються через кожні 3 вузли = 48 px);
+       • хвильове рівняння на висотах вузлів: рух курсора збурює «поверхню», хвилі розходяться й згасають;
+       • під курсором — м'яка «ямка», ніби палець торкається води;
+       • кожен вузол проєктується з перспективою, а вся площина злегка нахиляється за курсором — звідси 3D. */
+    (() => {
+      const stage = document.querySelector('.adv__stage');
+      const cv = stage && stage.querySelector('.adv__grid');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+      const STEP = 16, EVERY = 3;        // крок симуляції і щільність ліній (48 px)
+      const DAMP = 0.985;                // згасання хвиль
+      const SPEED = 0.12;                // швидкість поширення хвиль (0.5 — максимум; менше = повільніше, «в'язкіше»)
+      const FOCAL = 900;                 // «фокусна відстань» перспективи
+      const DENT = 40, SIGMA = 160;      // глибина й ширина ямки під курсором
+      const BOWL = -160;                 // вигин у спокої: краї ближче до глядача — сітка виглядає об'ємною чашею
+
+      let W, H, dpr, cols, rows, ox, oy, cur, prev, base;
+      let mx = -9999, my = -9999, sx = 0, sy = 0, lastX = null, lastY = null;
+      let dentA = 0, dentTarget = 0, tiltX = 0, tiltY = 0, tiltTX = 0, tiltTY = 0;
+      let running = false, visible = false, idleFrames = 0;
+
+      function resize() {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        W = stage.clientWidth; H = stage.clientHeight;
+        cv.width = W * dpr; cv.height = H * dpr;
+        // сітка ширша за екран, щоб при нахилі й прогині не було видно країв
+        const padX = Math.ceil(W * .18 / (STEP * EVERY)) * STEP * EVERY;
+        const padY = Math.ceil(H * .18 / (STEP * EVERY)) * STEP * EVERY;
+        cols = Math.ceil((W + padX * 2) / (STEP * EVERY)) * EVERY + 1;
+        rows = Math.ceil((H + padY * 2) / (STEP * EVERY)) * EVERY + 1;
+        // центруємо сітку відносно екрана
+        ox = (W - (cols - 1) * STEP) / 2;
+        oy = (H - (rows - 1) * STEP) / 2;
+        cur = new Float32Array(cols * rows);
+        prev = new Float32Array(cols * rows);
+        // статична форма поверхні (параболоїд), рахуємо один раз
+        base = new Float32Array(cols * rows);
+        const R2 = (W * W + H * H) / 4;
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+          const dx = ox + c * STEP - W / 2, dy = oy + r * STEP - H / 2;
+          base[r * cols + c] = BOWL * (dx * dx + dy * dy) / R2;
+        }
+        draw();
+      }
+
+      // збурення поверхні в точці (x, y) з силою f
+      function splash(x, y, f) {
+        const gx = Math.round((x - ox) / STEP), gy = Math.round((y - oy) / STEP), R = 5;
+        for (let j = -R; j <= R; j++) for (let i = -R; i <= R; i++) {
+          const c = gx + i, r = gy + j;
+          if (c < 1 || r < 1 || c >= cols - 1 || r >= rows - 1) continue;
+          const d2 = (i * i + j * j) / (R * R);
+          if (d2 <= 1) cur[r * cols + c] += f * (1 - d2) * (1 - d2);   // плавний «купол» без гострих країв
+        }
+      }
+
+      function simulate() {
+        let energy = 0;
+        for (let r = 1; r < rows - 1; r++) {
+          const row = r * cols;
+          for (let c = 1; c < cols - 1; c++) {
+            const i = row + c;
+            const n = (2 * cur[i] - prev[i] + SPEED * (cur[i - 1] + cur[i + 1] + cur[i - cols] + cur[i + cols] - 4 * cur[i])) * DAMP;
+            prev[i] = n;
+            energy += n < 0 ? -n : n;
+          }
+        }
+        const t = cur; cur = prev; prev = t;
+        return energy / (cols * rows);
+      }
+
+      function draw() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        const cx = W / 2, cy = H / 2;
+        const cyR = Math.cos(tiltY), syR = Math.sin(tiltY), cxR = Math.cos(tiltX), sxR = Math.sin(tiltX);
+        const inv2s = 1 / (2 * SIGMA * SIGMA);
+
+        // проєкція вузла (c, r) на екран
+        const P = (c, r) => {
+          const x = ox + c * STEP, y = oy + r * STEP;
+          let z = base[r * cols + c] + Math.max(-220, Math.min(220, cur[r * cols + c] * 1.4));   // межа, щоб перспектива не «рвалась»
+          if (dentA > .01) { const dx = x - sx, dy = y - sy; z += dentA * DENT * Math.exp(-(dx * dx + dy * dy) * inv2s); }
+          let X = x - cx, Y = y - cy;
+          const X1 = X * cyR + z * syR, Z1 = -X * syR + z * cyR;     // поворот навколо Y
+          const Y1 = Y * cxR - Z1 * sxR, Z2 = Y * sxR + Z1 * cxR;    // поворот навколо X
+          const k = FOCAL / (FOCAL + Z2);
+          return [cx + X1 * k, cy + Y1 * k];
+        };
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(246,243,238,.14)';   // тихий фон, не перетягує увагу
+        ctx.beginPath();
+        for (let r = 0; r < rows; r += EVERY) {          // горизонтальні лінії
+          let [x, y] = P(0, r); ctx.moveTo(x, y);
+          for (let c = 1; c < cols; c++) { [x, y] = P(c, r); ctx.lineTo(x, y); }
+        }
+        for (let c = 0; c < cols; c += EVERY) {          // вертикальні лінії
+          let [x, y] = P(c, 0); ctx.moveTo(x, y);
+          for (let r = 1; r < rows; r++) { [x, y] = P(c, r); ctx.lineTo(x, y); }
+        }
+        ctx.stroke();
+
+        // м'яке згасання сітки до країв і підсвітка навколо курсора
+        ctx.globalCompositeOperation = 'destination-in';
+        const g = ctx.createRadialGradient(cx, cy, Math.min(W, H) * .2, cx, cy, Math.max(W, H) * .75);
+        g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,.25)');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'source-over';
+        if (dentA > .01) {
+          const h = ctx.createRadialGradient(sx, sy, 0, sx, sy, SIGMA * 1.6);
+          h.addColorStop(0, `rgba(246,243,238,${.025 * dentA})`); h.addColorStop(1, 'rgba(246,243,238,0)');
+          ctx.fillStyle = h; ctx.fillRect(0, 0, W, H);
+        }
+      }
+
+      function frame() {
+        // плавне слідування ямки й нахилу за курсором
+        sx += (mx - sx) * .05; sy += (my - sy) * .05;   // ямка повільно «пливе» за курсором
+        dentA += (dentTarget - dentA) * .03;
+        tiltX += (tiltTX - tiltX) * .02; tiltY += (tiltTY - tiltY) * .02;
+
+        const e = simulate();
+        draw();
+        const calm = e < .002 && Math.abs(dentTarget - dentA) < .005 && Math.abs(tiltTX - tiltX) < .0005 && Math.abs(tiltTY - tiltY) < .0005;
+        idleFrames = calm ? idleFrames + 1 : 0;
+        if (visible && idleFrames < 30) requestAnimationFrame(frame); else running = false;
+      }
+      const wake = () => { idleFrames = 0; if (!running && visible) { running = true; requestAnimationFrame(frame); } };
+
+      function onMove(x, y) {
+        if (reduce.matches) return;
+        const r = stage.getBoundingClientRect();
+        x -= r.left; y -= r.top;
+        if (mx < -999) { sx = x; sy = y; }
+        mx = x; my = y; dentTarget = 1;
+        // швидкість руху -> сила хвилі
+        if (lastX !== null) {
+          const v = Math.hypot(x - lastX, y - lastY);
+          splash(x, y, Math.min(v * .18, 6));
+        }
+        lastX = x; lastY = y;
+        // легкий нахил площини за курсором (±3°)
+        tiltTY = ((x / W) - .5) * .04;
+        tiltTX = -((y / H) - .5) * .04;
+        wake();
+      }
+      function onLeave() { dentTarget = 0; lastX = lastY = null; tiltTX = tiltTY = 0; wake(); }
+
+      stage.addEventListener('pointermove', e => onMove(e.clientX, e.clientY));
+      stage.addEventListener('pointerleave', onLeave);
+      stage.addEventListener('pointerdown', e => { const r = stage.getBoundingClientRect(); splash(e.clientX - r.left, e.clientY - r.top, 20); wake(); });
+      stage.addEventListener('touchmove', e => { const t = e.touches[0]; if (t) onMove(t.clientX, t.clientY); }, { passive: true });
+      stage.addEventListener('touchend', onLeave);
+
+      new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) wake(); }).observe(stage);
+      addEventListener('resize', resize);
+      resize();
+    })();
+  </script>
+</body>
+</html>
